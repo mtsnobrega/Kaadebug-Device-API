@@ -60,12 +60,14 @@ public class DeviceConfigurationService : IDeviceConfigurationService
             Associated = true,
             Plant = new PlantSummaryDto { PlantId = plant.Id, Name = plant.Name },
             Species = new SpeciesSummaryDto { SpeciesId = species.Id, Name = species.Name },
+            IrrigationIntervalHours = species.IrrigationIntervalHours,
+
             MonitoringParameters = new MonitoringParametersDto
             {
                 SoilMoisture = new RangeDto { Min = species.SoilMoistureMin, Max = species.SoilMoistureMax },
                 AirHumidity = new RangeDto { Min = species.AirHumidityMin, Max = species.AirHumidityMax },
                 Temperature = new RangeDto { Min = species.TemperatureMin, Max = species.TemperatureMax }
-            }
+            },
         };
 
         return new DeviceConfigurationResult

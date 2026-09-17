@@ -1,6 +1,7 @@
 ﻿using kaadebug_device_api.Data;
 using kaadebug_device_api.Dtos.Readings;
 using kaadebug_device_api.Entities;
+using kaadebug_device_api.Entities.Enums;
 using kaadebug_device_api.Exceptions;
 using kaadebug_device_api.Services.Interfaces;
 using SensorTypeEnum = kaadebug_device_api.Entities.Enums.SensorType;
@@ -19,9 +20,9 @@ public class SensorReadingService : ISensorReadingService
     {
         return sensorType switch
         {
-            SensorTypeEnum.SOIL_MOISTURE => value >= species.SoilMoistureMin && value <= species.SoilMoistureMax,
-            SensorTypeEnum.AIR_HUMIDITY => value >= species.AirHumidityMin && value <= species.AirHumidityMax,
-            SensorTypeEnum.TEMPERATURE => value >= species.TemperatureMin && value <= species.TemperatureMax,
+            SensorTypeEnum.SoilMoisture => value >= species.SoilMoistureMin && value <= species.SoilMoistureMax,
+            SensorTypeEnum.AirHumidity => value >= species.AirHumidityMin && value <= species.AirHumidityMax,
+            SensorTypeEnum.Temperature => value >= species.TemperatureMin && value <= species.TemperatureMax,
             _ => throw new InvalidSensorReadingException($"Tipo de sensor '{sensorType}' não é suportado.")
         };
     }
@@ -37,6 +38,44 @@ public class SensorReadingService : ISensorReadingService
 
         foreach (var item in readings)
         {
+            // 1. Criamos uma variável para guardar o enum convertido
+            SensorType sensorType;
+
+            // 2. Fazemos um mapeamento manual do texto vindo do ESP32 para o Enum do C#
+            switch (item.SensorType?.ToUpper().Trim())
+            {
+                case "SOIL_MOISTURE":
+                    sensorType = SensorType.SoilMoisture;
+                    break;
+                case "AIR_HUMIDITY":
+                    sensorType = SensorType.AirHumidity;
+                    break;
+                case "TEMPERATURE":
+                    sensorType = SensorType.Temperature;
+                    break;
+                default:
+                    // 3. Caso o ESP32 envie algo totalmente diferente, tenta o TryParse padrão como plano B
+                    if (!Enum.TryParse<SensorType>(item.SensorType, ignoreCase: true, out sensorType))
+                    {
+                        throw new InvalidSensorReadingException(
+                            $"Tipo de sensor '{item.SensorType}' é inválido. Valores aceitos: SOIL_MOISTURE, AIR_HUMIDITY, TEMPERATURE");
+                    }
+                    break;
+            }
+
+            var withinRange = IsWithinRange(sensorType, item.Value, species);
+
+            entities.Add(new SensorReading
+            {
+                PlantId = plantId,
+                DeviceId = deviceId,
+                SensorType = sensorType, // Agora a variável mapeada vai aqui corretinha
+                Value = item.Value,
+                IsWithinIdealRange = withinRange,
+                ReadAt = readAt
+            });
+
+            /*
             if (!Enum.TryParse<SensorTypeEnum>(item.SensorType, ignoreCase: true, out var sensorType))
             {
                 throw new InvalidSensorReadingException(
@@ -54,7 +93,7 @@ public class SensorReadingService : ISensorReadingService
                 Value = item.Value,
                 IsWithinIdealRange = withinRange,
                 ReadAt = readAt
-            });
+            });*/
         }
 
         _db.SensorReadings.AddRange(entities);

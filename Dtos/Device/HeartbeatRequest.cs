@@ -8,6 +8,6 @@ public class HeartbeatRequest
 public class HeartbeatResponse
 {
     public string DeviceCode { get; set; } = string.Empty;
-    public string ConnectionStatus { get; set; } = string.Empty;
+    //public string ConnectionStatus { get; set; } = string.Empty;
     public DateTimeOffset ServerTime { get; set; }
 }

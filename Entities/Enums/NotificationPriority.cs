@@ -1,8 +1,13 @@
-﻿namespace kaadebug_device_api.Entities.Enums;
+﻿using NpgsqlTypes;
+
+namespace kaadebug_device_api.Entities.Enums;
 
 public enum NotificationPriority
 {
-    LOW,
-    MEDIUM,
-    HIGH
+    [PgName("LOW")]
+    Low,
+    [PgName("MEDIUM")]
+    Medium,
+    [PgName("HIGH")]
+    High
 }

@@ -17,14 +17,14 @@ public class PlantHealthService : IPlantHealthService
 
         if (outOfRange.Count == 0)
         {
-            return HealthStatusEnum.HEALTHY;
+            return HealthStatusEnum.Healthy;
         }
 
         // Se qualquer leitura fora da faixa tiver desvio > 20% em relação ao
         // limite mais próximo, a planta é CRITICAL. Caso contrário, WARNING.
         var hasCritical = outOfRange.Any(reading => DeviationRatio(reading, species) > ToleranceMargin);
 
-        return hasCritical ? HealthStatusEnum.CRITICAL : HealthStatusEnum.WARNING;
+        return hasCritical ? HealthStatusEnum.Critical : HealthStatusEnum.Warning;
     }
 
     /// <summary>
@@ -35,9 +35,9 @@ public class PlantHealthService : IPlantHealthService
     {
         var (min, max) = reading.SensorType switch
         {
-            SensorTypeEnum.SOIL_MOISTURE => (species.SoilMoistureMin, species.SoilMoistureMax),
-            SensorTypeEnum.AIR_HUMIDITY => (species.AirHumidityMin, species.AirHumidityMax),
-            SensorTypeEnum.TEMPERATURE => (species.TemperatureMin, species.TemperatureMax),
+            SensorTypeEnum.SoilMoisture => (species.SoilMoistureMin, species.SoilMoistureMax),
+            SensorTypeEnum.AirHumidity => (species.AirHumidityMin, species.AirHumidityMax),
+            SensorTypeEnum.Temperature => (species.TemperatureMin, species.TemperatureMax),
             _ => (0m, 0m)
         };
 

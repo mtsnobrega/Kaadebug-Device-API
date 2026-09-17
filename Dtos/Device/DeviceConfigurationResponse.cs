@@ -25,6 +25,11 @@ public class SpeciesSummaryDto
     public string Name { get; set; } = string.Empty;
 }
 
+public class SpieciesIrrigation
+{
+    public int IrrigationIntervalHours { get; set; }
+}
+
 /// <summary>
 /// Resposta quando o device tem planta associada: traz tudo que o ESP32
 /// precisa guardar em memória para monitorar sem consultar o banco a cada leitura.
@@ -34,9 +39,11 @@ public class DeviceConfigurationResponse
     public Guid DeviceId { get; set; }
     public string DeviceCode { get; set; } = string.Empty;
     public bool Associated { get; set; } = true;
+    public int IrrigationIntervalHours { get; set; }
     public PlantSummaryDto Plant { get; set; } = new();
     public SpeciesSummaryDto Species { get; set; } = new();
     public MonitoringParametersDto MonitoringParameters { get; set; } = new();
+    //public SpieciesIrrigation IrrigationIntervalHours { get; set; } = new();
 }
 
 /// <summary>
