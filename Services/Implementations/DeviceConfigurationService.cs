@@ -60,6 +60,7 @@ public class DeviceConfigurationService : IDeviceConfigurationService
             Associated = true,
             Plant = new PlantSummaryDto { PlantId = plant.Id, Name = plant.Name },
             Species = new SpeciesSummaryDto { SpeciesId = species.Id, Name = species.Name },
+            ReadingFrequency = species.ReadingFrequency,
             IrrigationIntervalHours = species.IrrigationIntervalHours,
 
             MonitoringParameters = new MonitoringParametersDto

@@ -19,4 +19,5 @@ public class Species
     public string? CareInfo { get; set; }
 
     public int IrrigationIntervalHours { get; set; }
+    public int ReadingFrequency { get; set; }
 }

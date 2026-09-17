@@ -40,10 +40,10 @@ public class DeviceConfigurationResponse
     public string DeviceCode { get; set; } = string.Empty;
     public bool Associated { get; set; } = true;
     public int IrrigationIntervalHours { get; set; }
+    public int ReadingFrequency { get; set; }
     public PlantSummaryDto Plant { get; set; } = new();
     public SpeciesSummaryDto Species { get; set; } = new();
     public MonitoringParametersDto MonitoringParameters { get; set; } = new();
-    //public SpieciesIrrigation IrrigationIntervalHours { get; set; } = new();
 }
 
 /// <summary>

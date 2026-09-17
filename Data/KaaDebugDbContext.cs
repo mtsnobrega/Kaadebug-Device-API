@@ -166,6 +166,9 @@ public class KaaDebugDbContext : DbContext
 
             entity.Property(s => s.IrrigationIntervalHours)
                 .HasColumnName("irrigation_interval_hours");
+
+            entity.Property(s => s.ReadingFrequency)
+                .HasColumnName("reading_frequency");
         });
 
         modelBuilder.Entity<User>(entity =>
