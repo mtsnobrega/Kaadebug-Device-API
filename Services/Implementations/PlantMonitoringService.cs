@@ -48,20 +48,26 @@ public class PlantMonitoringService : IPlantMonitoringService
         var species = plant.Species;
         var readAt = request.ReadAt.UtcDateTime;
 
+
         await using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync();
         try
         {
             var savedReadings = await _sensorReadingService.SaveReadingsAsync(
                 plant.Id, device.Id, species, request.Readings, readAt);
 
-            device.LastHeartbeatAt = DateTime.UtcNow;
-            device.ConnectionStatus = ConnectionStatusEnum.Online;
+            device.LastHeartbeatAt = DateTime.Now;
+
+            // Proteção contra a sobrescrita do status Associated
+            if (device.ConnectionStatus != ConnectionStatusEnum.Associated)
+            {
+                device.ConnectionStatus = ConnectionStatusEnum.Online;
+            }
 
             var previousStatus = plant.HealthStatus;
             var newStatus = _plantHealthService.DetermineHealthStatus(species, savedReadings);
 
             plant.HealthStatus = newStatus;
-            plant.UpdatedAt = DateTime.UtcNow;
+            plant.UpdatedAt = DateTime.Now;
 
             await _db.SaveChangesAsync();
 
@@ -83,5 +89,42 @@ public class PlantMonitoringService : IPlantMonitoringService
             await transaction.RollbackAsync();
             throw;
         }
+        /*
+        await using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            var savedReadings = await _sensorReadingService.SaveReadingsAsync(
+                plant.Id, device.Id, species, request.Readings, readAt);
+
+            device.LastHeartbeatAt = DateTime.Now;
+            device.ConnectionStatus = ConnectionStatusEnum.Online;
+
+            var previousStatus = plant.HealthStatus;
+            var newStatus = _plantHealthService.DetermineHealthStatus(species, savedReadings);
+
+            plant.HealthStatus = newStatus;
+            plant.UpdatedAt = DateTime.Now;
+
+            await _db.SaveChangesAsync();
+
+            await _notificationService.EvaluateAndCreateAsync(plant, species, savedReadings, previousStatus, newStatus);
+
+            await transaction.CommitAsync();
+
+            return new SensorReadingsResponse
+            {
+                DeviceCode = device.Code,
+                PlantId = plant.Id,
+                ReceivedAt = DateTimeOffset.UtcNow,
+                ProcessedReadings = savedReadings.Count,
+                PlantHealthStatus = newStatus.ToString()
+            };
+        }
+        catch
+        {
+            await transaction.RollbackAsync();
+            throw;
+        }
+        */
     }
 }

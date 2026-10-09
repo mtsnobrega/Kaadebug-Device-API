@@ -30,7 +30,7 @@ public class DeviceService : IDeviceService
         // Se chegou aqui, a ESP não tem dono. 
         // Muda de Offline para Online (Modo de Pareamento) para o App enxergá-la.
         device.ConnectionStatus = ConnectionStatusEnum.Online;
-        device.LastHeartbeatAt = DateTime.UtcNow;
+        device.LastHeartbeatAt = DateTime.Now;
 
         await _db.SaveChangesAsync();
 
@@ -47,7 +47,7 @@ public class DeviceService : IDeviceService
             ?? throw new DeviceNotFoundException(deviceCode);
 
         device.ConnectionStatus = ConnectionStatusEnum.Online;
-        device.LastHeartbeatAt = DateTime.UtcNow;
+        device.LastHeartbeatAt = DateTime.Now;
 
         await _db.SaveChangesAsync();
 
@@ -66,7 +66,7 @@ public class DeviceService : IDeviceService
         var device = await _db.Devices.FirstOrDefaultAsync(d => d.Code == deviceCode)
             ?? throw new DeviceNotFoundException(deviceCode);
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
         device.LastHeartbeatAt = now;
         //device.ConnectionStatus = ConnectionStatusEnum.Online;
 
@@ -85,7 +85,7 @@ public class DeviceService : IDeviceService
         var device = await _db.Devices.FirstOrDefaultAsync(d => d.Code == deviceCode)
             ?? throw new DeviceNotFoundException(deviceCode);
 
-        var now = DateTime.UtcNow;
+        var now = DateTime.Now;
         device.ConnectionStatus = ConnectionStatusEnum.Offline;
 
         await _db.SaveChangesAsync();
