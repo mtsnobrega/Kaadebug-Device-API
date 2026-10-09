@@ -25,7 +25,7 @@ public class KaaDebugDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
-        // Aplica a conversão para UTC em TODAS as propriedades DateTime de TODAS as entidades
+        // Garante que o Postgres receba Kind=Utc sem alterar o valor da hora local
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
             foreach (var property in entityType.GetProperties())
@@ -33,8 +33,8 @@ public class KaaDebugDbContext : DbContext
                 if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
                 {
                     property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>(
-                        v => v.Kind == DateTimeKind.Utc ? v : v.ToUniversalTime(), // Na hora de salvar: converte para UTC
-                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc)             // Na hora de ler: garante Kind=Utc
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc), // Na hora de salvar: força a etiqueta Utc no valor bruto
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Utc)  // Na hora de ler: mantém como Utc
                     ));
                 }
             }
