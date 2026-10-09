@@ -32,9 +32,13 @@ public class KaaDebugDbContext : DbContext
             {
                 if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
                 {
+                    // Força o EF Core/Npgsql a mapear para 'timestamp without time zone'
+                    property.SetColumnType("timestamp");
+
+                    // Define o Kind como Unspecified para salvar exatamente o valor literal (ex: 02:55)
                     property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>(
-                        v => DateTime.SpecifyKind(v, DateTimeKind.Unspecified), // Salva o valor numérico puro no banco
-                        v => DateTime.SpecifyKind(v, DateTimeKind.Unspecified)  // Lê o valor puro do banco
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Unspecified),
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Unspecified)
                     ));
                 }
             }
