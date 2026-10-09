@@ -83,8 +83,9 @@ public class NotificationService : INotificationService
                 Message = message,
                 Priority = priority,
                 IsRead = false,
-                //CreatedAt = DateTime.Now
-            });
+				CreatedAt = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)
+				//CreatedAt = DateTime.Now
+			});
         }
 
         // 5. Salva todas as linhas de uma vez no banco de dados
