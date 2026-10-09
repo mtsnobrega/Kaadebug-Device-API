@@ -83,8 +83,7 @@ public class NotificationService : INotificationService
                 Message = message,
                 Priority = priority,
                 IsRead = false,
-				CreatedAt = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc)
-				//CreatedAt = DateTime.Now
+				CreatedAt = DateTime.Now
 			});
         }
 
