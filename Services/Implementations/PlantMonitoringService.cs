@@ -25,6 +25,13 @@ public class PlantMonitoringService : IPlantMonitoringService
         _plantHealthService = plantHealthService;
         _notificationService = notificationService;
     }
+    
+
+
+
+
+
+
 
     public async Task<SensorReadingsResponse> ProcessReadingsAsync(string deviceCode, SensorReadingsRequest request)
     {
@@ -46,7 +53,7 @@ public class PlantMonitoringService : IPlantMonitoringService
         }
 
         var species = plant.Species;
-
+        /*
         // 1. Fuso de Brasília para garantir a hora exata
         var tzBrasilia = TimeZoneInfo.FindSystemTimeZoneById(
             OperatingSystem.IsWindows() ? "E. South America Standard Time" : "America/Sao_Paulo"
@@ -83,6 +90,43 @@ public class PlantMonitoringService : IPlantMonitoringService
             await _notificationService.EvaluateAndCreateAsync(plant, species, savedReadings, previousStatus, newStatus);
 
             await transaction.CommitAsync();
+            */
+
+        // 1. Define o fuso horário de Brasília
+        var tzBrasilia = TimeZoneInfo.FindSystemTimeZoneById(
+            OperatingSystem.IsWindows() ? "E. South America Standard Time" : "America/Sao_Paulo"
+        );
+
+        // 2. Converte o ReadAt do JSON (ex: "02:45:00-03:00") para DateTime de Brasília ("02:45:00")
+        var readAt = TimeZoneInfo.ConvertTime(request.ReadAt, tzBrasilia).DateTime;
+
+        // 3. Pega o horário atual do servidor em Brasília
+        var nowBrasilia = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tzBrasilia);
+
+        await using IDbContextTransaction transaction = await _db.Database.BeginTransactionAsync();
+        try
+        {
+            var savedReadings = await _sensorReadingService.SaveReadingsAsync(
+                plant.Id, device.Id, species, request.Readings, readAt);
+
+            device.LastHeartbeatAt = nowBrasilia;
+
+            if (device.ConnectionStatus != ConnectionStatusEnum.Associated)
+            {
+                device.ConnectionStatus = ConnectionStatusEnum.Online;
+            }
+
+            var previousStatus = plant.HealthStatus;
+            var newStatus = _plantHealthService.DetermineHealthStatus(species, savedReadings);
+
+            plant.HealthStatus = newStatus;
+            plant.UpdatedAt = nowBrasilia;
+
+            await _db.SaveChangesAsync();
+
+            await _notificationService.EvaluateAndCreateAsync(plant, species, savedReadings, previousStatus, newStatus);
+
+            await transaction.CommitAsync();
 
             return new SensorReadingsResponse
             {
@@ -99,6 +143,7 @@ public class PlantMonitoringService : IPlantMonitoringService
             throw;
         }
     }
+    
     /*
     public async Task<SensorReadingsResponse> ProcessReadingsAsync(string deviceCode, SensorReadingsRequest request)
     {

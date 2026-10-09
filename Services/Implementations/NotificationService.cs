@@ -73,6 +73,24 @@ public class NotificationService : INotificationService
             {
                 message = $"Alerta Contínuo: {message}";
             }
+            // No início do método ou da classe:
+            var tzBrasilia = TimeZoneInfo.FindSystemTimeZoneById(
+                OperatingSystem.IsWindows() ? "E. South America Standard Time" : "America/Sao_Paulo"
+            );
+
+            // No loop onde cria a notificação:
+            notificationsToSave.Add(new Notification
+            {
+                Id = Guid.NewGuid(),
+                UserId = plant.UserId,
+                PlantId = plant.Id,
+                Message = message,
+                Priority = priority,
+                IsRead = false,
+                CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tzBrasilia) // 👈 Horário de Brasília
+            });
+
+            /*
 
             // 4. Cria a notificação individual e adiciona na lista
             notificationsToSave.Add(new Notification
@@ -85,6 +103,8 @@ public class NotificationService : INotificationService
                 IsRead = false,
 				CreatedAt = DateTime.Now
 			});
+
+            */
         }
 
         // 5. Salva todas as linhas de uma vez no banco de dados
