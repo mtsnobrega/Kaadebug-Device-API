@@ -83,7 +83,7 @@ public class NotificationService : INotificationService
                 Message = message,
                 Priority = priority,
                 IsRead = false,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Now
             });
         }
 
@@ -128,7 +128,7 @@ public class NotificationService : INotificationService
             Message = message,
             Priority = priority,
             IsRead = false,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTime.Now
         };
 
         _db.Notifications.Add(notification);
