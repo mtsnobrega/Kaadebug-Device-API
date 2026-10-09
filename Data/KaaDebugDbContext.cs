@@ -25,6 +25,22 @@ public class KaaDebugDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
 
+        // Aplica a conversão para Unspecified em TODAS as propriedades DateTime
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties())
+            {
+                if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?))
+                {
+                    property.SetValueConverter(new Microsoft.EntityFrameworkCore.Storage.ValueConversion.ValueConverter<DateTime, DateTime>(
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Unspecified), // Salva o valor numérico puro no banco
+                        v => DateTime.SpecifyKind(v, DateTimeKind.Unspecified)  // Lê o valor puro do banco
+                    ));
+                }
+            }
+        }
+
+        /*
         // Garante que o Postgres receba Kind=Utc sem alterar o valor da hora local
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
@@ -39,7 +55,7 @@ public class KaaDebugDbContext : DbContext
                 }
             }
         }
-
+        */
         // Tipos ENUM nativos utilizados pelo PostgreSQL.
         modelBuilder.HasPostgresEnum<HealthStatus>(
             "health_status");
