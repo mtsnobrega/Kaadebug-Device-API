@@ -58,7 +58,7 @@ public class NotificationService : INotificationService
 
             // 2. Calcula a gravidade individual desta leitura específica
             var severity = GetReadingSeverity(reading.Value, min, max);
-            var severityTag = severity == HealthStatusEnum.Critical ? "CRÍTICO" : "AVISO";
+            var severityTag = severity == HealthStatusEnum.Critical ? "Crítico" : "Aviso";
 
             // A prioridade no banco agora reflete a gravidade do sensor individual
             var priority = severity == HealthStatusEnum.Critical
@@ -87,24 +87,10 @@ public class NotificationService : INotificationService
                 Message = message,
                 Priority = priority,
                 IsRead = false,
-                CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tzBrasilia) // 👈 Horário de Brasília
+                CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, tzBrasilia) 
             });
 
-            /*
-
-            // 4. Cria a notificação individual e adiciona na lista
-            notificationsToSave.Add(new Notification
-            {
-                Id = Guid.NewGuid(),
-                UserId = plant.UserId,
-                PlantId = plant.Id,
-                Message = message,
-                Priority = priority,
-                IsRead = false,
-				CreatedAt = DateTime.Now
-			});
-
-            */
+            
         }
 
         // 5. Salva todas as linhas de uma vez no banco de dados
